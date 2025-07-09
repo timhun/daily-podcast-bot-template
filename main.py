@@ -7,7 +7,10 @@ client = OpenAI(api_key=os.getenv("OPENAI_KEY"))
 
 today = datetime.now().strftime("%Y/%m/%d")
 
-prompt = """
+
+
+
+prompt = f"""
 你是一位有經驗的中文 Podcast 播報員，語氣像親切的中年大叔。
 請用口語化方式，播報以下主題的內容，總長度約 12 分鐘：
 
