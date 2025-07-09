@@ -1,0 +1,23 @@
+name: Daily Podcast Broadcast
+
+on:
+  schedule:
+    - cron: '0 23 * * *'  # UTC 23:00 = 台灣早上 7 點
+  workflow_dispatch:      # 可手動執行
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: pip install openai requests
+
+      - name: Run podcast script
+        run: python main.py
