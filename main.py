@@ -4,7 +4,7 @@ from openai import OpenAI
 import requests
 
 # 環境變數
-OPENAI_KEY = os.getenv("OPENAI_KEY")
+OPENAI_KEY = os.getenv("OPENAI_API_KEY")
 ELEVEN_KEY = os.getenv("ELEVEN_KEY")
 VOICE_ID = os.getenv("VOICE_ID")
 
