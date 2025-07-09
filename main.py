@@ -1,26 +1,28 @@
-from openai import OpenAI
 import os
 from datetime import datetime
+from openai import OpenAI
+import requests
 
-# 初始化 OpenAI 客戶端
-client = OpenAI(api_key=os.getenv("OPENAI_KEY"))
+# 環境變數
+OPENAI_KEY = os.getenv("OPENAI_KEY")
+ELEVEN_KEY = os.getenv("ELEVEN_KEY")
+VOICE_ID = os.getenv("VOICE_ID")
 
+# OpenAI 初始化
+client = OpenAI(api_key=OPENAI_KEY)
+
+# 產生播報稿
 today = datetime.now().strftime("%Y/%m/%d")
-
-
-
 
 prompt = f"""
 你是一位有經驗的中文 Podcast 播報員，語氣像親切的中年大叔。
 請用口語化方式，播報以下主題的內容，總長度約 12 分鐘：
-
-- 今天凌晨美股四大指數（道瓊、那斯達克、標普500、費城半導體）收盤與分析
-- QQQ、SPY ETF 走勢與分析，包含比特幣與黃金報價
-- 資金流向與熱門產業類股
-- 今日 Top 5 熱門股解析
-- 一則最新 AI 技術或新聞解讀
-- 每日投資金句，作為結尾
-
+1. 今天凌晨美股四大指數（道瓊、那斯達克、標普500、費城半導體）收盤與分析
+2. QQQ、SPY ETF 走勢與分析，包含比特幣與黃金報價
+3. 資金流向與熱門產業類股
+4. 今日 Top 5 熱門股解析
+5. 一則最新 AI 技術或新聞解讀
+6. 每日投資金句，作為結尾
 今天日期為 {today}
 請以親切、口語風格完成播報稿。
 """
@@ -37,4 +39,29 @@ response = client.chat.completions.create(
 script_text = response.choices[0].message.content
 
 # 存稿
-with open("script.txt", "w", encoding="u
+with open("script.txt", "w", encoding="utf-8") as f:
+    f.write(script_text)
+
+# ElevenLabs 語音合成
+headers = {
+    "xi-api-key": ELEVEN_KEY,
+    "Content-Type": "application/json"
+}
+data = {
+    "text": script_text,
+    "model_id": "eleven_multilingual_v2",
+    "voice_settings": {
+        "stability": 0.4,
+        "similarity_boost": 0.8
+    }
+}
+
+url = f"https://api.elevenlabs.io/v1/text-to-speech/{VOICE_ID}"
+
+res = requests.post(url, headers=headers, json=data)
+
+with open("daily_podcast.mp3", "wb") as f:
+    f.write(res.content)
+
+print("✅ 播報稿已完成（script.txt）")
+print("✅ 語音檔已生成（daily_podcast.mp3）")
