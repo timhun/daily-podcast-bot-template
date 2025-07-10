@@ -3,14 +3,6 @@ from datetime import datetime
 from openai import OpenAI
 import requests
 
-- name: Debug: Check if API Key exists
-  run: |
-    if [ -z "$OPENAI_API_KEY" ]; then
-      echo "❌ OPENAI_API_KEY is missing"
-      exit 1
-    else
-      echo "✅ OPENAI_API_KEY exists"
-    fi
 
 
 # ✅ 明確取得環境變數
