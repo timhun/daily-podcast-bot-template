@@ -2,14 +2,17 @@ import os
 from datetime import datetime
 from openai import OpenAI
 import requests
+from openai import OpenAI
+import os
+
 
 # 環境變數
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+OPENAIk = os.getenv("OPENAI_API_KEY")
 ELEVEN_KEY = os.getenv("ELEVEN_KEY")
 VOICE_ID = os.getenv("VOICE_ID")
 
 # OpenAI 初始化
-client = OpenAI(api_key=OPENAI_API_KEY)
+client = OpenAI(api_key=OPENAIk)
 
 # 產生播報稿
 today = datetime.now().strftime("%Y/%m/%d")
