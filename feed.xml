@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd">
+  <channel>
+    <title>大叔說財經科技與投資</title>
+    <description>每日美股及科技財經播報，涵蓋指數、ETF、比特幣、黃金及AI新聞。</description>
+    <link>https://your-username.github.io/daily-podcast-bot-template/</link>
+    <language>zh-tw</language>
+    <itunes:author>每大叔</itunes:author>
+    <itunes:category text="Business" />
+    <itunes:image href="https://your-username.github.io/daily-podcast-bot-template/cover.jpg" />
+  </channel>
+</rss>
