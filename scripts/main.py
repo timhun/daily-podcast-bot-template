@@ -111,7 +111,7 @@ def text_to_speech(script):
 
 def update_rss():
     today = datetime.date.today().strftime("%Y%m%d")
-    rss_url = f"https://your-username.github.io/daily-podcast-bot-template/audio/daily_podcast_{today}.mp3"
+    rss_url = f"https://timhun.github.io/daily-podcast-bot-template/audio/daily_podcast_{today}.mp3"
     pub_date = datetime.datetime.now().strftime("%a, %d %b %Y %H:%M:%S +0800")
     try:
         tree = ET.parse("feed.xml")
@@ -121,7 +121,7 @@ def update_rss():
         channel = ET.SubElement(rss, "channel")
         ET.SubElement(channel, "title").text = "每大叔說財經科技與投資"
         ET.SubElement(channel, "description").text = "每日美股及科技財經播報，涵蓋指數、ETF、比特幣、黃金及AI新聞。"
-        ET.SubElement(channel, "link").text = "https://your-username.github.io/daily-podcast-bot-template/"
+        ET.SubElement(channel, "link").text = "https://timhun.github.io/daily-podcast-bot-template/"
         ET.SubElement(channel, "language").text = "zh-tw"
         ET.SubElement(channel, "itunes:author").text = "每大叔"
         ET.SubElement(channel, "itunes:category", attrib={"text": "Business"})
