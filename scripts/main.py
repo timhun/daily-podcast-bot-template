@@ -59,9 +59,13 @@ def generate_script(data):
     for attempt in range(3):
         try:
             response = requests.post(
-                "https://api.x.ai/v1/grok",
-                headers={"Authorization": f"Bearer {XAI_API_KEY}"},
-                json={"prompt": prompt, "max_tokens": 2000}
+                "https://api.x.ai/v1/chat/completions",  # 更新為新端點
+                headers={"Authorization": f"Bearer {XAI_API_KEY}", "Content-Type": "application/json"},
+                json={
+                    "model": "grok-4",  # 明確指定 Grok 4
+                    "messages": [{"role": "user", "content": prompt}],
+                    "max_tokens": 2000
+                }
             )
             # 檢查 HTTP 狀態碼
             if response.status_code != 200:
@@ -76,7 +80,7 @@ def generate_script(data):
                 logger.error(f"回應中無 'choices' 鍵: {response_json}")
                 time.sleep(2)
                 continue
-            return response_json["choices"][0]["text"]
+            return response_json["choices"][0]["message"]["content"]  # 更新為 message.content
         except Exception as e:
             logger.error(f"API 請求第 {attempt + 1} 次失敗: {e}")
             time.sleep(2)
