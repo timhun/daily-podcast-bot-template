@@ -94,16 +94,22 @@ def generate_script(data):
     """
 
 def text_to_speech(script):
-    from elevenlabs import ElevenLabsClient
     import datetime
     import logging
     import os
+    from pydub import AudioSegment
+    try:
+        from elevenlabs import ElevenLabs
+    except ImportError as e:
+        logger = logging.getLogger(__name__)
+        logger.error(f"無法導入 elevenlabs: {e}")
+        raise
 
     logger = logging.getLogger(__name__)
 
     try:
         # 初始化 ElevenLabs 客戶端
-        client = ElevenLabsClient(api_key=os.getenv("ELEVENLABS_API_KEY"))
+        client = ElevenLabs(api_key=os.getenv("ELEVENLABS_API_KEY"))
 
         # 分段處理腳本以避免字符限制
         def split_text(text, max_length=1000):
@@ -124,28 +130,50 @@ def text_to_speech(script):
         audio_files = []
 
         # 設置語音參數
-        voice_id = "D9bZgM9Er0PhIxuW9Jqa"  # 保留原始聲音 ID
+        voice_id = "D9bZgM9Er0PhIxuW9Jqa"
         voice_settings = {
-            "stability": 0.4,              # 保留原始設置
-            "similarity_boost": 0.75,      # 保留原始設置
-            "speed": 1.2                   # 保留原始設置
+            "stability": 0.4,
+            "similarity_boost": 0.75,
+            "speed": 1.2
         }
 
         # 生成每段音頻
         for i, segment in enumerate(segments):
-            audio = client.text_to_speech(
-                text=segment,
-                voice_id=voice_id,
-                model_id="eleven_multilingual_v2",
-                voice_settings=voice_settings
-            )
-            temp_file = f"audio/temp_segment_{i+1}.mp3"
-            with open(temp_file, "wb") as f:
-                f.write(audio)
-            audio_files.append(temp_file)
+            try:
+                audio = client.generate(
+                    text=segment,
+                    voice=voice_id,
+                    model="eleven_multilingual_v2",
+                    voice_settings=voice_settings
+                )
+                temp_file = f"audio/temp_segment_{i+1}.mp3"
+                with open(temp_file, "wb") as f:
+                    f.write(audio)
+                audio_files.append(temp_file)
+            except AttributeError:
+                # Fallback to HTTP API if generate is not available
+                import requests
+                url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
+                headers = {
+                    "xi-api-key": os.getenv("ELEVENLABS_API_KEY"),
+                    "Content-Type": "application/json"
+                }
+                data = {
+                    "text": segment,
+                    "model_id": "eleven_multilingual_v2",
+                    "voice_settings": voice_settings
+                }
+                response = requests.post(url, headers=headers, json=data)
+                if response.status_code == 200:
+                    temp_file = f"audio/temp_segment_{i+1}.mp3"
+                    with open(temp_file, "wb") as f:
+                        f.write(response.content)
+                    audio_files.append(temp_file)
+                else:
+                    logger.error(f"HTTP API 請求失敗: {response.status_code} - {response.text}")
+                    raise
 
         # 合併音頻
-        from pydub import AudioSegment
         combined = AudioSegment.empty()
         for audio_file in audio_files:
             segment_audio = AudioSegment.from_mp3(audio_file)
