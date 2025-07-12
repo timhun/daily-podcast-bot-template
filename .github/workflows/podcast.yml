@@ -93,7 +93,7 @@ jobs:
       <itunes:duration>12:00</itunes:duration>
     </item>
   </channel>
-</rss>`;
+</rss>;
         fs.writeFileSync("public/feed.xml", xml);
         EOF
 
