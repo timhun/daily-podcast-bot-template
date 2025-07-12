@@ -94,17 +94,73 @@ def generate_script(data):
     """
 
 def text_to_speech(script):
+    from elevenlabs import ElevenLabsClient
+    import datetime
+    import logging
+    import os
+
+    logger = logging.getLogger(__name__)
+
     try:
-        client = ElevenLabs(api_key=ELEVENLABS_API_KEY)
-        audio = client.generate(
-            text=script,
-            voice="D9bZgM9Er0PhIxuW9Jqa",
-            model="eleven_multilingual_v2",
-            voice_settings={"stability": 0.4, "similarity_boost": 0.75, "speed": 1.2}
-        )
+        # 初始化 ElevenLabs 客戶端
+        client = ElevenLabsClient(api_key=os.getenv("ELEVENLABS_API_KEY"))
+
+        # 分段處理腳本以避免字符限制
+        def split_text(text, max_length=1000):
+            segments = []
+            current_segment = ""
+            for sentence in text.split("。"):
+                if len(current_segment) + len(sentence) + 1 <= max_length:
+                    current_segment += sentence + "。"
+                else:
+                    segments.append(current_segment)
+                    current_segment = sentence + "。"
+            if current_segment:
+                segments.append(current_segment)
+            return segments
+
+        # 分割腳本
+        segments = split_text(script, max_length=1000)
+        audio_files = []
+
+        # 設置語音參數
+        voice_id = "D9bZgM9Er0PhIxuW9Jqa"  # 保留原始聲音 ID
+        voice_settings = {
+            "stability": 0.4,              # 保留原始設置
+            "similarity_boost": 0.75,      # 保留原始設置
+            "speed": 1.2                   # 保留原始設置
+        }
+
+        # 生成每段音頻
+        for i, segment in enumerate(segments):
+            audio = client.text_to_speech(
+                text=segment,
+                voice_id=voice_id,
+                model_id="eleven_multilingual_v2",
+                voice_settings=voice_settings
+            )
+            temp_file = f"audio/temp_segment_{i+1}.mp3"
+            with open(temp_file, "wb") as f:
+                f.write(audio)
+            audio_files.append(temp_file)
+
+        # 合併音頻
+        from pydub import AudioSegment
+        combined = AudioSegment.empty()
+        for audio_file in audio_files:
+            segment_audio = AudioSegment.from_mp3(audio_file)
+            combined += segment_audio
+
+        # 保存最終音頻
         today = datetime.date.today().strftime("%Y%m%d")
-        with open(f"audio/daily_podcast_{today}.mp3", "wb") as f:
-            f.write(audio)
+        output_path = f"audio/daily_podcast_{today}.mp3"
+        combined.export(output_path, format="mp3")
+
+        # 清理臨時文件
+        for audio_file in audio_files:
+            os.remove(audio_file)
+
+        return output_path
     except Exception as e:
         logger.error(f"語音轉換失敗: {e}")
         raise
