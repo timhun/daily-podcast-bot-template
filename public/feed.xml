@@ -1,1 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"
+     xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd"
+     xmlns:media="http://search.yahoo.com/mrss/">
+  <channel>
+    <title>大叔說財經科技與投資</title>
+    <link>https://timhun.github.io/daily-podcast/</link>
+    <language>zh-tw</language>
+    <description>每天清晨更新的美股與AI科技財經播報</description>
+    <itunes:author>大叔</itunes:author>
+    <itunes:explicit>no</itunes:explicit>
+    <itunes:category text="Business">
+      <itunes:category text="Investing"/>
+    </itunes:category>
+    <itunes:image href="https://timhun.github.io/daily-podcast/cover.jpg"/>
+    <itunes:owner>
+      <itunes:name>大叔</itunes:name>
+      <itunes:email>your@email.com</itunes:email>
+    </itunes:owner>
 
+    <item>
+      <title>2025-07-11 每日播報</title>
+      <description>親切大叔語音帶你掌握最新投資趨勢</description>
+      <enclosure url="https://timhun.github.io/daily-podcast-bot-template/podcast.mp3" length="123456" type="audio/mpeg"/>
+      <guid>https://timhun.github.io/daily-podcast-bot-template/20250711</guid>
+      <pubDate>Thu, 11 Jul 2025 06:00:00 +0800</pubDate>
+      <itunes:duration>12:00</itunes:duration>
+    </item>
+  </channel>
+</rss>
