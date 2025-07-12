@@ -97,20 +97,11 @@ def text_to_speech(script):
     import datetime
     import logging
     import os
-    from pydub import AudioSegment
-    try:
-        from elevenlabs import ElevenLabs
-    except ImportError as e:
-        logger = logging.getLogger(__name__)
-        logger.error(f"無法導入 elevenlabs: {e}")
-        raise
+    import requests
 
     logger = logging.getLogger(__name__)
 
     try:
-        # 初始化 ElevenLabs 客戶端
-        client = ElevenLabs(api_key=os.getenv("ELEVENLABS_API_KEY"))
-
         # 分段處理腳本以避免字符限制
         def split_text(text, max_length=1000):
             segments = []
@@ -139,52 +130,35 @@ def text_to_speech(script):
 
         # 生成每段音頻
         for i, segment in enumerate(segments):
-            try:
-                audio = client.generate(
-                    text=segment,
-                    voice=voice_id,
-                    model="eleven_multilingual_v2",
-                    voice_settings=voice_settings
-                )
+            url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
+            headers = {
+                "xi-api-key": os.getenv("ELEVENLABS_API_KEY"),
+                "Content-Type": "application/json"
+            }
+            data = {
+                "text": segment,
+                "model_id": "eleven_multilingual_v2",
+                "voice_settings": voice_settings
+            }
+            response = requests.post(url, headers=headers, json=data)
+            if response.status_code == 200:
                 temp_file = f"audio/temp_segment_{i+1}.mp3"
                 with open(temp_file, "wb") as f:
-                    f.write(audio)
+                    f.write(response.content)
                 audio_files.append(temp_file)
-            except AttributeError:
-                # Fallback to HTTP API if generate is not available
-                import requests
-                url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
-                headers = {
-                    "xi-api-key": os.getenv("ELEVENLABS_API_KEY"),
-                    "Content-Type": "application/json"
-                }
-                data = {
-                    "text": segment,
-                    "model_id": "eleven_multilingual_v2",
-                    "voice_settings": voice_settings
-                }
-                response = requests.post(url, headers=headers, json=data)
-                if response.status_code == 200:
-                    temp_file = f"audio/temp_segment_{i+1}.mp3"
-                    with open(temp_file, "wb") as f:
-                        f.write(response.content)
-                    audio_files.append(temp_file)
-                else:
-                    logger.error(f"HTTP API 請求失敗: {response.status_code} - {response.text}")
-                    raise
+            else:
+                logger.error(f"HTTP API 請求失敗 (段 {i+1}): {response.status_code} - {response.text}")
+                raise Exception(f"HTTP API 請求失敗: {response.text}")
 
-        # 合併音頻
-        combined = AudioSegment.empty()
-        for audio_file in audio_files:
-            segment_audio = AudioSegment.from_mp3(audio_file)
-            combined += segment_audio
-
-        # 保存最終音頻
+        # 合併音頻（無需 pydub）
         today = datetime.date.today().strftime("%Y%m%d")
         output_path = f"audio/daily_podcast_{today}.mp3"
-        combined.export(output_path, format="mp3")
+        with open(output_path, "wb") as outfile:
+            for audio_file in audio_files:
+                with open(audio_file, "rb") as infile:
+                    outfile.write(infile.read())
 
-        # 清理臨時文件
+        # 清理臨時檔案
         for audio_file in audio_files:
             os.remove(audio_file)
 
