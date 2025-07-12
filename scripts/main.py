@@ -74,11 +74,11 @@ def update_rss():
         channel = ET.SubElement(rss, "channel")
         ET.SubElement(channel, "title").text = "大叔說財經科技與投資"
         ET.SubElement(channel, "description").text = "每日美股及科技財經播報，涵蓋指數、ETF、比特幣、黃金及AI新聞。"
-        ET.SubElement(channel, "link").text = "https://your-username.github.io/daily-podcast-bot-template/"
+        ET.SubElement(channel, "link").text = "https://timhun.github.io/daily-podcast-bot-template/"
         ET.SubElement(channel, "language").text = "zh-tw"
         ET.SubElement(channel, "itunes:author").text = "每大叔"
         ET.SubElement(channel, "itunes:category", attrib={"text": "Business"})
-        ET.SubElement(channel, "itunes:image", attrib={"href": "https://your-username.github.io/daily-podcast-bot-template/cover.jpg"})
+        ET.SubElement(channel, "itunes:image", attrib={"href": "https://timhun.github.io/daily-podcast-bot-template/cover.jpg"})
     item = ET.SubElement(channel, "item")
     ET.SubElement(item, "title").text = f"美股播報 {today}"
     ET.SubElement(item, "description").text = "每日美股及科技財經播報，涵蓋指數、ETF、比特幣、黃金及AI新聞。"
