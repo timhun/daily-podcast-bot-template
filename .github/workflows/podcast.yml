@@ -1,0 +1,89 @@
+name: Daily Podcast
+
+on:
+  schedule:
+    - cron: '0 22 * * *'  # 每日台灣早上 6 點（UTC+8）
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    env:
+      GROK_API_KEY: ${{ secrets.GROK_API_KEY }}
+      ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+      VOICE_ID: D9bZgM9Er0PhIxuW9Jqa
+
+    steps:
+    - uses: actions/checkout@v3
+    - run: npm install axios dayjs
+
+    - name: 生成腳本（Grok）
+      run: |
+        node <<EOF
+        const axios = require("axios");
+        const fs = require("fs");
+        (async () => {
+          const res = await axios.post("https://api.grok.x.ai/v1/chat/completions", {
+            model: "grok-1",
+            messages: [{ role: "system", content: "你是一位親切的中年大叔Podcast播報員，請生成長度約12分鐘的播報內容，包括美股、ETF、比特幣、黃金、熱門股、AI/總經新聞與金句，語速1.2倍。" }]
+          }, {
+            headers: { Authorization: `Bearer ${process.env.GROK_API_KEY}`, "Content-Type": "application/json" }
+          });
+          fs.writeFileSync("script.txt", res.data.choices[0].message.content);
+        })();
+        EOF
+
+    - name: 合成語音（ElevenLabs）
+      run: |
+        node <<EOF
+        const axios = require("axios");
+        const fs = require("fs");
+        const text = fs.readFileSync("script.txt", "utf8");
+        (async () => {
+          const res = await axios.post(`https://api.elevenlabs.io/v1/text-to-speech/${process.env.VOICE_ID}/stream`, {
+            text,
+            voice_settings: { stability: 0.4, similarity_boost: 0.8 }
+          }, {
+            headers: {
+              "xi-api-key": process.env.ELEVENLABS_API_KEY,
+              "Content-Type": "application/json"
+            },
+            responseType: "arraybuffer"
+          });
+          fs.mkdirSync("public", { recursive: true });
+          fs.writeFileSync("public/podcast.mp3", res.data);
+        })();
+        EOF
+
+    - name: 產生 RSS feed
+      run: |
+        node <<EOF
+        const fs = require("fs");
+        const dayjs = require("dayjs");
+        const date = dayjs().format("YYYY-MM-DD");
+        const pubDate = dayjs().format("ddd, DD MMM YYYY HH:mm:ss ZZ");
+        const xml = `<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0">
+  <channel>
+    <title>大叔說財經科技與投資</title>
+    <link>https://timhun.github.io/daily-podcast-bot-template/</link>
+    <description>每天早上更新，美股與科技投資解析</description>
+    <item>
+      <title>${date} 播報</title>
+      <description>親切大叔聲音帶你掌握最新投資趨勢</description>
+      <enclosure url="https://timhun.github.io/daily-podcast/podcast.mp3" length="123456" type="audio/mpeg"/>
+      <pubDate>${pubDate}</pubDate>
+      <guid>https://timhun.github.io/daily-podcast/${date}</guid>
+    </item>
+  </channel>
+</rss>`;
+        fs.writeFileSync("public/feed.xml", xml);
+        EOF
+
+    - name: Commit & Push
+      run: |
+        git config user.name github-actions
+        git config user.email github-actions@github.com
+        git add public/
+        git commit -m "Daily podcast update" || echo "Nothing to commit"
+        git push
