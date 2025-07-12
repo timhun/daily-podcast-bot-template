@@ -46,7 +46,7 @@ def fetch_market_data():
 
 def generate_script(data):
     prompt = f"""
-你是台灣中年大叔播報員，生成約3分鐘的簡短播報，只涵蓋美股指數(.DJI, .IXIC, .SPX, SOX)收盤數據及比特幣、黃金報價，數據必須精確且交叉驗證。
+一句話測試即可。
     """
     for attempt in range(3):
         try:
