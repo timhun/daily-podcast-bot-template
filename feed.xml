@@ -1,12 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd">
-  <channel>
+<?xml version='1.0' encoding='utf-8'?>
+<rss xmlns:ns0="http://www.itunes.com/dtds/podcast-1.0.dtd" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" version="2.0"><channel>
     <title>大叔說財經科技與投資</title>
     <description>每日美股及科技財經播報，涵蓋指數、ETF、比特幣、黃金及AI新聞。</description>
     <link>https://timhun.github.io/daily-podcast-bot-template/</link>
     <language>zh-tw</language>
-    <itunes:author>大叔</itunes:author>
-    <itunes:category text="Business" />
-    <itunes:image href="https://timhun.github.io/daily-podcast-bot-template/cover.jpg" />
-  </channel>
+    <ns0:author>大叔</ns0:author>
+    <ns0:category text="Business" />
+    <ns0:image href="https://timhun.github.io/daily-podcast-bot-template/cover.jpg" />
+  <item><title>美股播報 20250712</title><description>每日美股及科技財經播報，涵蓋指數、ETF、比特幣、黃金及AI新聞。</description><pubDate>Sat, 12 Jul 2025 07:02:36 +0800</pubDate><enclosure url="https://timhun.github.io/daily-podcast-bot-template/audio/daily_podcast_20250712.mp3" length="12000000" type="audio/mpeg" /><guid>https://timhun.github.io/daily-podcast-bot-template/audio/daily_podcast_20250712.mp3</guid></item></channel>
 </rss>
