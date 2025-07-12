@@ -1,0 +1,4 @@
+requests
+elevenlabs
+python-dotenv
+yfinance
