@@ -1,0 +1,426 @@
+<|example|>
+<|instruction|>撰寫一個函式 `add`，回傳兩個整數的總和。<|input|>
+<|output|>
+
+def add(left: int, right: int) -> int:
+    """
+    Return the sum of two integers.
+
+    Args:
+        left: First integer addend.
+        right: Second integer addend.
+
+    Returns:
+        Sum of left and right.
+    """
+    return left + right
+<|end|>
+
+<|example|>
+<|instruction|>撰寫函式 `safe_divide`，傳回除法結果，若分母為 0 則回傳 `None`。<|input|>
+<|output|>
+from typing import Optional
+
+def safe_divide(numerator: float, denominator: float) -> Optional[float]:
+    """
+    Return numerator / denominator. If denominator is zero, return None.
+    """
+    if denominator == 0:
+        return None
+    return numerator / denominator
+<|end|>
+
+<|example|>
+<|instruction|>實作函式 `reverse_words`，將句子中的單字順序反轉，並以單一空白分隔。<|input|>
+<|output|>
+def reverse_words(sentence: str) -> str:
+    """
+    Reverse the order of words in a sentence and join with a single space.
+    Collapses any extra whitespace.
+    """
+    words = sentence.split()
+    words.reverse()
+    return " ".join(words)
+<|end|>
+
+<|example|>
+<|instruction|>實作函式 `is_palindrome`，忽略非英數字元與大小寫判斷是否為回文。<|input|>
+<|output|>
+import re
+
+def is_palindrome(text: str) -> bool:
+    """
+    Return True if text is a palindrome ignoring non-alphanumeric chars and case.
+    """
+    cleaned = re.sub(r"[^0-9A-Za-z]", "", text).lower()
+    return cleaned == cleaned[::-1]
+<|end|>
+
+<|example|>
+<|instruction|>實作函式 `top_k_words`，回傳最常出現的前 k 個單字與次數，頻率相同時以字典序排序。<|input|>
+<|output|>
+import re
+from collections import Counter
+from typing import List, Tuple
+
+def top_k_words(text: str, k: int) -> List[Tuple[str, int]]:
+    """
+    Return top-k frequent words (case-insensitive). Ties are broken lexicographically.
+    """
+    words = [w.lower() for w in re.findall(r"[A-Za-z0-9']+", text)]
+    counts = Counter(words)
+    sorted_items = sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))
+    return sorted_items[:k]
+<|end|>
+
+<|example|>
+<|instruction|>實作函式 `merge_dedup_preserve_order`，合併多個序列並去重，保留首次出現順序。<|input|>
+<|output|>
+from typing import Iterable, List, Set, TypeVar
+
+T = TypeVar("T")
+
+def merge_dedup_preserve_order(*sequences: Iterable[T]) -> List[T]:
+    """
+    Merge multiple sequences, remove duplicates, and preserve first-seen order.
+    """
+    seen: Set[T] = set()
+    result: List[T] = []
+    for seq in sequences:
+        for item in seq:
+            if item in seen:
+                continue
+            seen.add(item)
+            result.append(item)
+    return result
+<|end|>
+
+<|example|>
+<|instruction|>實作二分搜尋 `binary_search`，在遞增排序的整數序列中尋找目標值的索引，找不到則回傳 `None`。<|input|>
+<|output|>
+from typing import Optional, Sequence
+
+def binary_search(sorted_values: Sequence[int], target: int) -> Optional[int]:
+    """
+    Binary search on a sorted ascending sequence of integers.
+    Return index if found, else None.
+    """
+    left = 0
+    right = len(sorted_values) - 1
+    while left <= right:
+        mid = (left + right) // 2
+        mid_val = sorted_values[mid]
+        if mid_val == target:
+            return mid
+        if target < mid_val:
+            right = mid - 1
+        else:
+            left = mid + 1
+    return None
+<|end|>
+
+<|example|>
+<|instruction|>實作 `transpose`，將矩陣轉置，若列長不一致則拋出 `ValueError`。<|input|>
+<|output|>
+from typing import List
+
+def transpose(matrix: List[List[int]]) -> List[List[int]]:
+    """
+    Transpose a 2D matrix. Raise ValueError if rows have inconsistent lengths.
+    """
+    if not matrix:
+        return []
+    num_cols = len(matrix[0])
+    for row in matrix:
+        if len(row) != num_cols:
+            raise ValueError("All rows must have the same length")
+    return [list(col) for col in zip(*matrix)]
+<|end|>
+
+<|example|>
+<|instruction|>實作 `flatten` 與 `iter_flatten`，將巢狀的 list/tuple 展平成一維結構。<|input|>
+<|output|>
+from typing import Any, Iterable, Iterator, List
+
+def flatten(nested: Iterable[Any]) -> List[Any]:
+    """
+    Return a fully flattened list from arbitrarily nested lists/tuples.
+    """
+    result: List[Any] = []
+    for item in nested:
+        if isinstance(item, (list, tuple)):
+            result.extend(flatten(item))
+        else:
+            result.append(item)
+    return result
+
+
+def iter_flatten(nested: Iterable[Any]) -> Iterator[Any]:
+    """
+    Generator version of flatten.
+    """
+    for item in nested:
+        if isinstance(item, (list, tuple)):
+            yield from iter_flatten(item)
+        else:
+            yield item
+<|end|>
+
+<|example|>
+<|instruction|>實作 LRU 快取 `LRUCache` 類別，支援 `get` 與 `put`，滿載時移除最久未使用項目。<|input|>
+<|output|>
+from collections import OrderedDict
+from typing import Generic, Optional, TypeVar
+
+K = TypeVar("K")
+V = TypeVar("V")
+
+class LRUCache(Generic[K, V]):
+    """
+    A simple LRU cache based on OrderedDict.
+    """
+
+    def __init__(self, capacity: int) -> None:
+        if capacity <= 0:
+            raise ValueError("capacity must be positive")
+        self._capacity = capacity
+        self._store: OrderedDict[K, V] = OrderedDict()
+
+    def get(self, key: K) -> Optional[V]:
+        if key not in self._store:
+            return None
+        value = self._store.pop(key)
+        self._store[key] = value  # mark as recently used
+        return value
+
+    def put(self, key: K, value: V) -> None:
+        if key in self._store:
+            self._store.pop(key)
+        elif len(self._store) >= self._capacity:
+            self._store.popitem(last=False)  # remove least recently used
+        self._store[key] = value
+
+    def __len__(self) -> int:
+        return len(self._store)
+<|end|>
+
+<|example|>
+<|instruction|>使用 `@dataclass` 實作 `Rectangle` 類別，提供 `area`、`perimeter`、`scale` 方法。<|input|>
+<|output|>
+from dataclasses import dataclass
+
+@dataclass(frozen=True)
+class Rectangle:
+    width: float
+    height: float
+
+    def area(self) -> float:
+        return self.width * self.height
+
+    def perimeter(self) -> float:
+        return 2 * (self.width + self.height)
+
+    def scale(self, factor: float) -> "Rectangle":
+        if factor <= 0:
+            raise ValueError("factor must be positive")
+        return Rectangle(self.width * factor, self.height * factor)
+<|end|>
+
+<|example|>
+<|instruction|>實作情境管理器 `timer`，於離開 with 區塊時計算經過秒數，若提供回呼則呼叫。<|input|>
+<|output|>
+import time
+from contextlib import contextmanager
+from typing import Callable, Iterator, Optional
+
+@contextmanager
+def timer(on_finish: Optional[Callable[[float], None]] = None) -> Iterator[None]:
+    """
+    Context manager that measures elapsed seconds.
+    """
+    start = time.perf_counter()
+    try:
+        yield
+    finally:
+        elapsed = time.perf_counter() - start
+        if on_finish is not None:
+            on_finish(elapsed)
+<|end|>
+
+<|example|>
+<|instruction|>實作裝飾器 `retry`，對指定例外重試數次，失敗則拋出最後的錯誤。<|input|>
+<|output|>
+import time
+from functools import wraps
+from typing import Any, Callable, Optional, Tuple, Type
+
+def retry(
+    exceptions: Tuple[Type[BaseException], ...],
+    attempts: int = 3,
+    delay_seconds: float = 0.1,
+) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+    """
+    Retry decorator for transient failures.
+    """
+    if attempts < 1:
+        raise ValueError("attempts must be >= 1")
+
+    def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
+        @wraps(func)
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
+            last_exc: Optional[BaseException] = None
+            for _ in range(attempts):
+                try:
+                    return func(*args, **kwargs)
+                except exceptions as exc:  # type: ignore[misc]
+                    last_exc = exc
+                    if delay_seconds > 0:
+                        time.sleep(delay_seconds)
+            assert last_exc is not None
+            raise last_exc
+
+        return wrapper
+
+    return decorator
+<|end|>
+
+<|example|>
+<|instruction|>撰寫命令列程式，計算檔案的行數。<|input|>
+<|output|>
+import argparse
+from typing import TextIO
+
+
+def count_lines(stream: TextIO) -> int:
+    """Return the number of lines in the given text stream."""
+    return sum(1 for _ in stream)
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Count lines in a file")
+    parser.add_argument("path", help="Path to the file")
+    args = parser.parse_args()
+
+    with open(args.path, "r", encoding="utf-8") as fp:
+        print(count_lines(fp))
+
+
+if __name__ == "__main__":
+    main()
+<|end|>
+
+<|example|>
+<|instruction|>從 CSV 檔案計算指定欄位的平均值；若欄名不存在或無有效數值則回傳 `None`。<|input|>
+<|output|>
+import csv
+from typing import Optional
+
+
+def average_of_column(csv_path: str, column_name: str) -> Optional[float]:
+    """
+    Compute the average of a numeric column in a CSV file.
+    Returns None if the column is missing or no valid numbers are found.
+    """
+    total = 0.0
+    count = 0
+    with open(csv_path, "r", encoding="utf-8", newline="") as f:
+        reader = csv.DictReader(f)
+        fieldnames = reader.fieldnames or []
+        if column_name not in fieldnames:
+            return None
+        for row in reader:
+            try:
+                value = float(row[column_name])
+            except (KeyError, ValueError, TypeError):
+                continue
+            total += value
+            count += 1
+    if count == 0:
+        return None
+    return total / count
+<|end|>
+
+<|example|>
+<|instruction|>實作以多執行緒擷取多個 URL，回傳字典對映 URL 到響應長度；失敗則設為 0。<|input|>
+<|output|>
+import urllib.request
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from typing import Dict, Iterable
+
+
+def fetch_url(url: str, timeout: float = 10.0) -> bytes:
+    with urllib.request.urlopen(url, timeout=timeout) as resp:
+        return resp.read()
+
+
+def fetch_many(urls: Iterable[str], max_workers: int = 8) -> Dict[str, int]:
+    """
+    Fetch multiple URLs concurrently. Return a map of url -> response length.
+    Failures yield length 0.
+    """
+    results: Dict[str, int] = {}
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        future_to_url = {executor.submit(fetch_url, url): url for url in urls}
+        for future in as_completed(future_to_url):
+            url = future_to_url[future]
+            try:
+                data = future.result()
+                results[url] = len(data)
+            except Exception:
+                results[url] = 0
+    return results
+<|end|>
+
+<|example|>
+<|instruction|>設定 logging 並示範記錄數則訊息。<|input|>
+<|output|>
+import logging
+from typing import Optional
+
+
+def configure_logging(level: int = logging.INFO, fmt: Optional[str] = None) -> None:
+    logging.basicConfig(
+        level=level,
+        format=fmt or "%(asctime)s %(levelname)s %(name)s - %(message)s",
+    )
+
+
+logger = logging.getLogger("app")
+
+
+def do_something() -> None:
+    logger.info("Starting")
+    try:
+        x = 10 / 2
+        logger.debug("Computation result: %s", x)
+    except ZeroDivisionError:
+        logger.exception("Division by zero")
+    else:
+        logger.info("Done")
+<|end|>
+
+<|example|>
+<|instruction|>使用標準庫實作簡單的 HTTP 伺服器，回應 'Hello, world!'。<|input|>
+<|output|>
+from http.server import BaseHTTPRequestHandler, HTTPServer
+from typing import Tuple
+
+
+class HelloHandler(BaseHTTPRequestHandler):
+    def do_GET(self) -> None:  # type: ignore[override]
+        message = b"Hello, world!"
+        self.send_response(200)
+        self.send_header("Content-Type", "text/plain; charset=utf-8")
+        self.send_header("Content-Length", str(len(message)))
+        self.end_headers()
+        self.wfile.write(message)
+
+
+def serve(addr: Tuple[str, int]) -> None:
+    httpd = HTTPServer(addr, HelloHandler)
+    httpd.serve_forever()
+
+
+if __name__ == "__main__":
+    serve(("0.0.0.0", 8000))
+<|end|>
